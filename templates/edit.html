@@ -4,234 +4,200 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edit Note · Smart Notes</title>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&family=Cabinet+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
   :root {
-    --bg: #080810;
-    --glass: rgba(255,255,255,0.04);
-    --glass-border: rgba(255,255,255,0.08);
-    --accent: #a78bfa;
-    --accent2: #34d399;
-    --accent3: #f472b6;
-    --text: #f1f0f5;
-    --muted: rgba(241,240,245,0.45);
-    --mono: 'DM Mono', monospace;
-    --serif: 'Instrument Serif', serif;
-    --sans: 'Cabinet Grotesk', sans-serif;
+    --bg: #0c0c0f;
+    --surface: #141418;
+    --surface2: #1a1a1f;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.14);
+    --text: #f0f0f2;
+    --text2: rgba(240,240,242,0.5);
+    --text3: rgba(240,240,242,0.25);
+    --accent: #7b6ef6;
+    --accent-soft: rgba(123,110,246,0.12);
+    --green: #34c98a;
+    --radius: 14px;
+    --radius-sm: 8px;
   }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: var(--sans);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-size: 14px;
     min-height: 100vh;
-    overflow-x: hidden;
   }
 
-  #bg-canvas {
+  #cursor-glow {
     position: fixed;
-    inset: 0;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(123,110,246,0.07) 0%, transparent 70%);
+    pointer-events: none;
     z-index: 0;
-    pointer-events: none;
+    transform: translate(-50%, -50%);
   }
 
-  body::after {
-    content: '';
+  #particle-canvas {
     position: fixed;
     inset: 0;
-    z-index: 1;
     pointer-events: none;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    background-repeat: repeat;
-    background-size: 128px;
-    opacity: 0.6;
+    z-index: 0;
+    opacity: 0.4;
   }
 
   header {
-    position: relative;
-    z-index: 10;
+    position: sticky;
+    top: 0;
+    z-index: 100;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 40px;
-    border-bottom: 1px solid var(--glass-border);
-    background: rgba(8,8,16,0.6);
-    backdrop-filter: blur(24px);
+    padding: 14px 32px;
+    background: rgba(12,12,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
   }
 
   .logo {
     display: flex;
     align-items: center;
     gap: 10px;
-  }
-  .logo-mark {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    background: linear-gradient(135deg, var(--accent), var(--accent3));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--mono);
-    font-size: 13px;
-    font-weight: 500;
-    color: #080810;
-  }
-  .logo-text {
     font-size: 14px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    color: var(--text);
+    font-weight: 600;
+    letter-spacing: -0.3px;
   }
-  .logo-text span {
-    font-family: var(--serif);
-    font-style: italic;
-    font-weight: 400;
-    color: var(--accent);
+  .logo-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100%{ opacity:1; box-shadow:0 0 8px var(--accent); }
+    50%{ opacity:0.5; box-shadow:0 0 3px var(--accent); }
   }
 
   .back-btn {
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    padding: 8px 16px;
-    border-radius: 10px;
-    background: var(--glass);
-    border: 1px solid var(--glass-border);
-    color: var(--muted);
-    font-family: var(--mono);
-    font-size: 11px;
+    padding: 7px 14px;
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
     text-decoration: none;
     transition: all 0.2s;
-    letter-spacing: 0.04em;
+    cursor: pointer;
   }
   .back-btn:hover {
-    background: rgba(255,255,255,0.08);
+    background: var(--surface2);
     color: var(--text);
-    border-color: rgba(255,255,255,0.15);
+    border-color: var(--border-hover);
   }
-  .back-btn .arrow { font-size: 14px; }
 
   main {
     position: relative;
-    z-index: 5;
-    max-width: 680px;
+    z-index: 1;
+    max-width: 620px;
     margin: 0 auto;
-    padding: 64px 32px 100px;
-    animation: fadeUp 0.4s cubic-bezier(0.16,1,0.3,1);
+    padding: 52px 32px 80px;
+    animation: fadeUp 0.35s cubic-bezier(0.16,1,0.3,1);
   }
   @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from { opacity:0; transform:translateY(12px); }
+    to   { opacity:1; transform:translateY(0); }
   }
 
-  .page-heading {
-    margin-bottom: 36px;
+  .page-header {
+    margin-bottom: 32px;
   }
   .page-eyebrow {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.2em;
+    font-size: 11px;
+    font-weight: 600;
     text-transform: uppercase;
+    letter-spacing: 0.08em;
     color: var(--accent);
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    margin-bottom: 8px;
   }
-  .page-eyebrow::before {
-    content: '';
-    display: block;
-    width: 20px;
-    height: 1px;
-    background: var(--accent);
-    opacity: 0.5;
-  }
-  .page-heading h1 {
-    font-family: var(--serif);
-    font-size: 36px;
-    font-style: italic;
-    font-weight: 400;
-    letter-spacing: -0.02em;
+  .page-title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
     color: var(--text);
-    line-height: 1.15;
   }
-  .note-id-badge {
-    margin-top: 10px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    border-radius: 6px;
-    background: rgba(167,139,250,0.08);
-    border: 1px solid rgba(167,139,250,0.15);
-    font-family: var(--mono);
-    font-size: 10px;
-    color: rgba(167,139,250,0.7);
-    letter-spacing: 0.06em;
+  .note-id {
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--text3);
+    font-family: 'SF Mono', 'Fira Code', monospace;
   }
 
-  .form-glass {
-    background: var(--glass);
-    border: 1px solid var(--glass-border);
-    border-radius: 24px;
-    padding: 32px;
-    backdrop-filter: blur(20px);
-    transition: border-color 0.3s, box-shadow 0.3s;
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    transition: border-color 0.2s;
   }
-  .form-glass:focus-within {
-    border-color: rgba(167,139,250,0.25);
-    box-shadow: 0 0 60px rgba(167,139,250,0.05);
+  .form-card:focus-within {
+    border-color: rgba(123,110,246,0.3);
   }
 
   .field {
-    margin-bottom: 20px;
-    position: relative;
+    margin-bottom: 18px;
   }
-  .field-label {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 8px;
+  .field label {
     display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text3);
+    margin-bottom: 7px;
   }
 
-  input[type="text"], textarea {
+  input[type="text"],
+  textarea {
     width: 100%;
-    background: rgba(0,0,0,0.3);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    padding: 14px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 11px 14px;
     color: var(--text);
-    font-family: var(--sans);
-    font-size: 15px;
-    font-weight: 500;
+    font-family: inherit;
+    font-size: 14px;
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
     resize: none;
-    -webkit-appearance: none;
   }
-  input[type="text"]:focus, textarea:focus {
-    border-color: rgba(167,139,250,0.4);
-    box-shadow: 0 0 0 3px rgba(167,139,250,0.08);
+  input[type="text"]:focus,
+  textarea:focus {
+    border-color: rgba(123,110,246,0.5);
+    box-shadow: 0 0 0 3px rgba(123,110,246,0.08);
   }
-  textarea { height: 200px; line-height: 1.7; font-size: 14px; }
+  textarea { height: 180px; line-height: 1.6; }
 
   .char-info {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--muted);
+    font-size: 11px;
+    color: var(--text3);
     text-align: right;
-    margin-top: 6px;
+    margin-top: 5px;
   }
 
   .divider {
     height: 1px;
-    background: var(--glass-border);
-    margin: 28px 0;
+    background: var(--border);
+    margin: 24px 0;
   }
 
   .actions {
@@ -240,214 +206,218 @@
     gap: 10px;
   }
 
-  .btn-save {
+  .btn-primary {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px 28px;
-    border-radius: 12px;
+    gap: 7px;
+    padding: 10px 22px;
+    border-radius: var(--radius-sm);
     border: none;
     cursor: pointer;
-    font-family: var(--sans);
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    background: linear-gradient(135deg, var(--accent), #7c3aed);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    background: var(--accent);
     color: #fff;
-    box-shadow: 0 4px 24px rgba(167,139,250,0.25);
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: all 0.2s;
+    letter-spacing: -0.2px;
   }
-  .btn-save:hover {
+  .btn-primary:hover {
+    background: #8f82f8;
     transform: translateY(-1px);
-    box-shadow: 0 6px 32px rgba(167,139,250,0.35);
+    box-shadow: 0 4px 16px rgba(123,110,246,0.3);
   }
-  .btn-save:active { transform: translateY(0); }
-
   .btn-cancel {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 12px 20px;
-    border-radius: 12px;
-    background: var(--glass);
-    border: 1px solid var(--glass-border);
-    color: var(--muted);
-    font-family: var(--sans);
-    font-size: 14px;
+    padding: 10px 18px;
+    border-radius: var(--radius-sm);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    font-family: inherit;
+    font-size: 13px;
     font-weight: 500;
     text-decoration: none;
-    cursor: pointer;
     transition: all 0.2s;
   }
   .btn-cancel:hover {
-    background: rgba(255,255,255,0.07);
+    background: var(--surface);
     color: var(--text);
-    border-color: rgba(255,255,255,0.15);
+    border-color: var(--border-hover);
   }
 
-  /* live preview */
-  .preview-section {
-    margin-top: 32px;
+  /* ── Live preview ── */
+  .preview-wrap {
+    margin-top: 28px;
   }
   .preview-label {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.15em;
+    font-size: 11px;
+    font-weight: 600;
     text-transform: uppercase;
-    color: rgba(241,240,245,0.2);
+    letter-spacing: 0.08em;
+    color: var(--text3);
     margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .preview-label::before {
-    content: '';
-    display: block;
-    width: 20px;
-    height: 1px;
-    background: rgba(241,240,245,0.15);
   }
   .preview-card {
-    background: rgba(167,139,250,0.05);
-    border: 1px solid rgba(167,139,250,0.12);
-    border-radius: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     padding: 20px;
+    border-left: 2px solid var(--accent);
+    transition: transform 0.2s;
   }
+  .preview-card:hover { transform: translateX(3px); }
   .preview-title {
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
     color: var(--text);
     margin-bottom: 8px;
-    min-height: 24px;
+    min-height: 22px;
   }
-  .preview-content {
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--muted);
-    line-height: 1.7;
+  .preview-body {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
     white-space: pre-wrap;
     word-break: break-word;
     min-height: 20px;
   }
 
-  @media (max-width: 640px) {
-    header { padding: 16px 20px; }
-    main { padding: 40px 20px 80px; }
-    .form-glass { padding: 24px; }
+  @media (max-width: 600px) {
+    header { padding: 12px 16px; }
+    main { padding: 32px 16px 60px; }
+    .form-card { padding: 20px; }
   }
 </style>
 </head>
 <body>
 
-<canvas id="bg-canvas"></canvas>
+<div id="cursor-glow"></div>
+<canvas id="particle-canvas"></canvas>
 
 <header>
   <div class="logo">
-    <div class="logo-mark">SN</div>
-    <div class="logo-text">Smart<span>Notes</span></div>
+    <div class="logo-dot"></div>
+    Smart Notes
   </div>
-  <a href="/" class="back-btn">
-    <span class="arrow">←</span> Back to notes
-  </a>
+  <a href="/" class="back-btn">← Back to notes</a>
 </header>
 
 <main>
-  <div class="page-heading">
-    <div class="page-eyebrow">Editing</div>
-    <h1>Refine your thought.</h1>
-    <div class="note-id-badge">id: {{ note.id[:8] }}…</div>
+  <div class="page-header">
+    <div class="page-eyebrow">Editing note</div>
+    <div class="page-title">Make your changes</div>
+    <div class="note-id">id: {{ note.id }}</div>
   </div>
 
-  <div class="form-glass">
-    <form action="/edit/{{ note.id }}" method="POST" id="editForm">
+  <div class="form-card">
+    <form action="/edit/{{ note.id }}" method="POST">
       <div class="field">
-        <label class="field-label" for="editTitle">Title</label>
-        <input type="text" name="title" id="editTitle" value="{{ note.title }}" required maxlength="80">
+        <label for="editTitle">Title</label>
+        <input type="text" id="editTitle" name="title"
+               value="{{ note.title }}" required maxlength="80">
       </div>
       <div class="field">
-        <label class="field-label" for="editContent">Content</label>
-        <textarea name="content" id="editContent" required maxlength="500">{{ note.content }}</textarea>
-        <div class="char-info" id="editCharCount">0 / 500</div>
+        <label for="editContent">Content</label>
+        <textarea id="editContent" name="content"
+                  required maxlength="500">{{ note.content }}</textarea>
+        <div class="char-info" id="charCount">0 / 500</div>
       </div>
-
       <div class="divider"></div>
-
       <div class="actions">
-        <button type="submit" class="btn-save">✓ Save Changes</button>
+        <button type="submit" class="btn-primary">✓ Save changes</button>
         <a href="/" class="btn-cancel">Cancel</a>
       </div>
     </form>
   </div>
 
-  <div class="preview-section">
+  <div class="preview-wrap">
     <div class="preview-label">Live preview</div>
     <div class="preview-card">
       <div class="preview-title" id="previewTitle">{{ note.title }}</div>
-      <div class="preview-content" id="previewContent">{{ note.content }}</div>
+      <div class="preview-body"  id="previewBody">{{ note.content }}</div>
     </div>
   </div>
 </main>
 
 <script>
-  // ── Background ──
-  const canvas = document.getElementById('bg-canvas');
-  const ctx = canvas.getContext('2d');
-  let W, H, t = 0;
-  const colors = [[167,139,250],[244,114,182],[52,211,153],[96,165,250]];
+// ── Cursor glow ──
+const glow = document.getElementById('cursor-glow');
+let mx = innerWidth/2, my = innerHeight/2;
+let gx = mx, gy = my;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+(function animGlow() {
+  gx += (mx - gx) * 0.08;
+  gy += (my - gy) * 0.08;
+  glow.style.left = gx + 'px';
+  glow.style.top  = gy + 'px';
+  requestAnimationFrame(animGlow);
+})();
 
-  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-  resize();
-  window.addEventListener('resize', resize);
+// ── Particles ──
+const canvas = document.getElementById('particle-canvas');
+const ctx = canvas.getContext('2d');
+let W, H;
+function resize() { W = canvas.width = innerWidth; H = canvas.height = innerHeight; }
+resize();
+window.addEventListener('resize', resize);
 
-  const orbs = colors.map((c, i) => ({
-    c, x: 0.2 + i * 0.22, y: 0.2 + i * 0.25,
-    sx: 0.0003 + i * 0.00007, sy: 0.0004 + i * 0.00009,
-    px: Math.random() * Math.PI * 2, py: Math.random() * Math.PI * 2,
-  }));
+const particles = Array.from({length:30}, () => ({
+  x: Math.random()*innerWidth, y: Math.random()*innerHeight,
+  r: Math.random()*1.4+0.3,
+  vx:(Math.random()-0.5)*0.25, vy:(Math.random()-0.5)*0.25,
+  alpha: Math.random()*0.35+0.08,
+  ax:0, ay:0,
+}));
 
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-    t += 0.006;
-    orbs.forEach(o => {
-      const x = (o.x + Math.sin(t * o.sx * 1000 + o.px) * 0.3) * W;
-      const y = (o.y + Math.cos(t * o.sy * 1000 + o.py) * 0.3) * H;
-      const r = 0.38 * Math.min(W, H);
-      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-      g.addColorStop(0, `rgba(${o.c[0]},${o.c[1]},${o.c[2]},0.10)`);
-      g.addColorStop(1, `rgba(${o.c[0]},${o.c[1]},${o.c[2]},0)`);
-      ctx.fillStyle = g;
+(function draw() {
+  ctx.clearRect(0,0,W,H);
+  particles.forEach(p => {
+    const dx=mx-p.x, dy=my-p.y, d=Math.sqrt(dx*dx+dy*dy);
+    if(d<180){ p.ax=(dx/d)*0.012; p.ay=(dy/d)*0.012; }
+    else { p.ax*=0.92; p.ay*=0.92; }
+    p.vx=(p.vx+p.ax)*0.98;
+    p.vy=(p.vy+p.ay)*0.98;
+    p.x+=p.vx; p.y+=p.vy;
+    if(p.x<0)p.x=W; if(p.x>W)p.x=0;
+    if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(123,110,246,${p.alpha})`;
+    ctx.fill();
+  });
+  for(let i=0;i<particles.length;i++) for(let j=i+1;j<particles.length;j++){
+    const dx=particles[i].x-particles[j].x, dy=particles[i].y-particles[j].y;
+    const d=Math.sqrt(dx*dx+dy*dy);
+    if(d<90){
       ctx.beginPath();
-      ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.fill();
-    });
-    requestAnimationFrame(draw);
+      ctx.moveTo(particles[i].x,particles[i].y);
+      ctx.lineTo(particles[j].x,particles[j].y);
+      ctx.strokeStyle=`rgba(123,110,246,${0.05*(1-d/90)})`;
+      ctx.lineWidth=0.5; ctx.stroke();
+    }
   }
-  draw();
+  requestAnimationFrame(draw);
+})();
 
-  // ── Char counter + live preview ──
-  const titleEl = document.getElementById('editTitle');
-  const contentEl = document.getElementById('editContent');
-  const counter = document.getElementById('editCharCount');
-  const previewTitle = document.getElementById('previewTitle');
-  const previewContent = document.getElementById('previewContent');
+// ── Char counter + live preview ──
+const titleEl   = document.getElementById('editTitle');
+const contentEl = document.getElementById('editContent');
+const counter   = document.getElementById('charCount');
+const prevTitle = document.getElementById('previewTitle');
+const prevBody  = document.getElementById('previewBody');
 
-  function updateCount() {
-    const len = contentEl.value.length;
-    counter.textContent = len + ' / 500';
-    counter.style.color = len > 450 ? '#f87171' : len > 350 ? '#fbbf24' : 'rgba(241,240,245,0.45)';
-  }
+function updateCount() {
+  const n = contentEl.value.length;
+  counter.textContent = n + ' / 500';
+  counter.style.color = n > 450 ? '#e05c5c' : n > 350 ? '#f0a050' : '';
+}
 
-  contentEl.addEventListener('input', () => {
-    updateCount();
-    previewContent.textContent = contentEl.value;
-  });
-
-  titleEl.addEventListener('input', () => {
-    previewTitle.textContent = titleEl.value;
-  });
-
-  updateCount();
+contentEl.addEventListener('input', () => { updateCount(); prevBody.textContent  = contentEl.value; });
+titleEl.addEventListener('input',   () => {               prevTitle.textContent = titleEl.value;   });
+updateCount();
 </script>
 </body>
 </html>
