@@ -36,13 +36,13 @@ pipeline {
                 script {
                     // Spin up a temp container and hit /health
                     def testId = "smoke-${BUILD_NUMBER}"
-                    sh "docker run -d --name ${testId} -p 5100:5000 ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    bat "docker run -d --name ${testId} -p 5100:5000 ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
                     sleep 3
-                    def status = sh(
-                        script: "curl -s -o /dev/null -w '%{http_code}' http://localhost:5100/health",
+                    def status = bat(
+                        script: '@echo off\ncurl -s -o NUL -w "%%{http_code}" http://localhost:5100/health',
                         returnStdout: true
                     ).trim()
-                    sh "docker rm -f ${testId}"
+                    bat "docker rm -f ${testId}"
 
                     if (status != '200') {
                         error("❌ Smoke test failed — /health returned ${status}")
@@ -60,11 +60,11 @@ pipeline {
                     usernameVariable: 'DH_USER',
                     passwordVariable: 'DH_PASS'
                 )]) {
-                    sh "echo ${DH_PASS} | docker login -u ${DH_USER} --password-stdin"
-                    sh "docker push ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    bat '@echo off\necho %DH_PASS%| docker login -u %DH_USER% --password-stdin'
+                    bat "docker push ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
                     // Also tag as latest
-                    sh "docker tag ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} ${REGISTRY}/${IMAGE_NAME}:latest"
-                    sh "docker push ${REGISTRY}/${IMAGE_NAME}:latest"
+                    bat "docker tag ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} ${REGISTRY}/${IMAGE_NAME}:latest"
+                    bat "docker push ${REGISTRY}/${IMAGE_NAME}:latest"
                 }
                 echo "📦 Image pushed to Docker Hub"
             }
@@ -75,17 +75,13 @@ pipeline {
             steps {
                 script {
                     // Gracefully stop the old container (ignore error if not running)
-                    sh "docker stop ${CONTAINER} || true"
-                    sh "docker rm   ${CONTAINER} || true"
+                    bat "docker stop ${CONTAINER} || exit 0"
+                    bat "docker rm   ${CONTAINER} || exit 0"
 
                     // Pull latest and launch
-                    sh """
+                    bat """
                         docker pull ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
-                        docker run -d \\
-                            --name ${CONTAINER} \\
-                            --restart unless-stopped \\
-                            -p ${PORT}:5000 \\
-                            ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
+                        docker run -d --name ${CONTAINER} --restart unless-stopped -p ${PORT}:5000 ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
                     """
                 }
                 echo "🚀 Container deployed on port ${PORT}"
@@ -97,8 +93,8 @@ pipeline {
             steps {
                 script {
                     sleep 5   // Give the container a moment to start
-                    def status = sh(
-                        script: "curl -s -o /dev/null -w '%{http_code}' http://localhost:${PORT}/health",
+                    def status = bat(
+                        script: '@echo off\ncurl -s -o NUL -w "%%{http_code}" http://localhost:${PORT}/health',
                         returnStdout: true
                     ).trim()
 
@@ -116,7 +112,7 @@ pipeline {
         success {
             echo "🎉 Pipeline SUCCESS — ${IMAGE_NAME}:${IMAGE_TAG} is live on port ${PORT}"
             // Prune dangling images to keep the host clean
-            sh "docker image prune -f"
+            bat "docker image prune -f"
         }
         failure {
             echo "🔥 Pipeline FAILED — check logs above"
