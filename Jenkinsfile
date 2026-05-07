@@ -5,7 +5,7 @@ pipeline {
         IMAGE_NAME   = "notes-app"
         IMAGE_TAG    = "v${BUILD_NUMBER}"
         CONTAINER    = "notes-app-live"
-        REGISTRY     = "your-dockerhub-username"   // ← change this
+        REGISTRY     = "abhilashcn2004"        // ← configured Docker Hub ID
         PORT         = "5000"
     }
 
