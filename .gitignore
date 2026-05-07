@@ -1,9 +1,13 @@
 __pycache__/
 *.pyc
 *.pyo
+.git/
+.gitignore
+.dockerignore
+*.md
+*.pdf
 .venv/
 .env
 *.log
 .idea/
 .vscode/
-data/
