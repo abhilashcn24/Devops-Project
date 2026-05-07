@@ -1,11 +1,32 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from datetime import datetime
 import uuid
+import json
+import os
 
 app = Flask(__name__)
 
-# In-memory store (replace with DB in production)
-notes = []
+# File-based store for local memory
+DATA_FILE = "data/notes.json"
+
+def load_notes():
+    if not os.path.exists("data"):
+        os.makedirs("data")
+    if os.path.exists(DATA_FILE):
+        try:
+            with open(DATA_FILE, "r") as f:
+                return json.load(f)
+        except:
+            return []
+    return []
+
+def save_notes():
+    if not os.path.exists("data"):
+        os.makedirs("data")
+    with open(DATA_FILE, "w") as f:
+        json.dump(notes, f, indent=4)
+
+notes = load_notes()
 
 def find_note(note_id):
     return next((n for n in notes if n["id"] == note_id), None)
@@ -25,6 +46,7 @@ def add():
             "content": content,
             "created_at": datetime.now().strftime("%b %d, %Y · %H:%M")
         })
+        save_notes()
     return redirect(url_for("index"))
 
 @app.route("/edit/<note_id>", methods=["GET", "POST"])
@@ -36,6 +58,7 @@ def edit(note_id):
         note["title"] = request.form.get("title", note["title"]).strip()
         note["content"] = request.form.get("content", note["content"]).strip()
         note["updated_at"] = datetime.now().strftime("%b %d, %Y · %H:%M")
+        save_notes()
         return redirect(url_for("index"))
     return render_template("edit.html", note=note)
 
@@ -43,6 +66,7 @@ def edit(note_id):
 def delete(note_id):
     global notes
     notes = [n for n in notes if n["id"] != note_id]
+    save_notes()
     return redirect(url_for("index"))
 
 @app.route("/health")
