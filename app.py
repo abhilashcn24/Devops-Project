@@ -10,8 +10,7 @@ app = Flask(__name__)
 DATA_FILE = "data/notes.json"
 
 def load_notes():
-    if not os.path.exists("data"):
-        os.makedirs("data")
+    os.makedirs("data", exist_ok=True)
     if os.path.exists(DATA_FILE):
         try:
             with open(DATA_FILE, "r") as f:
@@ -21,8 +20,7 @@ def load_notes():
     return []
 
 def save_notes():
-    if not os.path.exists("data"):
-        os.makedirs("data")
+    os.makedirs("data", exist_ok=True)
     with open(DATA_FILE, "w") as f:
         json.dump(notes, f, indent=4)
 
