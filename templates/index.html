@@ -3,173 +3,282 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Smart Notes — A CI/CD-powered notes app built with Flask, Docker, and Jenkins">
 <title>Smart Notes · Launchpad</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&family=Cabinet+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #2d817d;
-    --surface: #cecb40;
-    --surface-hover: #8f8fdb;
-    --border: #1e1e2e;
-    --border-hover: #2a2a40;
-    --accent: #00d4ff;
-    --accent-glow: #00d4ff25;
-    --accent2: #7c3aed;
-    --accent2-glow: #7c3aed25;
-    --text: #e2e8f0;
-    --muted: #28ce72;
-    --danger: #ff4757;
-    --success: #00d4aa;
-    --mono: 'JetBrains Mono', monospace;
-    --sans: 'Syne', sans-serif;
+    --bg: #080810;
+    --glass: rgba(255,255,255,0.04);
+    --glass-border: rgba(255,255,255,0.08);
+    --glass-hover: rgba(255,255,255,0.07);
+    --accent: #a78bfa;
+    --accent2: #34d399;
+    --accent3: #f472b6;
+    --text: #f1f0f5;
+    --muted: rgba(241,240,245,0.45);
+    --danger: #f87171;
+    --mono: 'DM Mono', monospace;
+    --serif: 'Instrument Serif', serif;
+    --sans: 'Cabinet Grotesk', sans-serif;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
   body {
     background: var(--bg);
     color: var(--text);
     font-family: var(--sans);
     min-height: 100vh;
-    position: relative;
     overflow-x: hidden;
   }
 
-  /* Animated background gradient */
-  body::before {
-    content: '';
+  /* ── Canvas background ── */
+  #bg-canvas {
     position: fixed;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(ellipse at 20% 50%, #00d4ff08 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 20%, #7c3aed08 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 80%, #00d4aa06 0%, transparent 50%);
-    animation: bgDrift 20s ease-in-out infinite alternate;
+    inset: 0;
     z-index: 0;
     pointer-events: none;
   }
-  @keyframes bgDrift {
-    0% { transform: translate(0, 0) rotate(0deg); }
-    100% { transform: translate(-3%, 3%) rotate(3deg); }
+
+  /* ── Grain overlay ── */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 128px;
+    opacity: 0.6;
   }
 
-  /* Header */
+  /* ── Header ── */
   header {
     position: relative;
-    z-index: 1;
-    border-bottom: 1px solid var(--border);
-    padding: 20px 40px;
+    z-index: 10;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: rgba(10, 10, 15, 0.8);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    padding: 20px 40px;
+    border-bottom: 1px solid var(--glass-border);
+    background: rgba(8,8,16,0.6);
+    backdrop-filter: blur(24px);
   }
+
   .logo {
-    font-family: var(--mono);
-    font-weight: 700;
-    font-size: 13px;
-    letter-spacing: 0.2em;
-    color: var(--accent);
-    text-transform: uppercase;
-  }
-  .logo span { color: var(--muted); }
-  .header-right { display: flex; align-items: center; gap: 12px; }
-  .pipeline-status {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 10px;
+  }
+  .logo-mark {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-family: var(--mono);
-    font-size: 11px;
-    color: var(--success);
+    font-size: 13px;
+    font-weight: 500;
+    color: #080810;
   }
-  .status-dot {
-    width: 6px;
-    height: 6px;
-    background: var(--success);
-    border-radius: 50%;
-    animation: pulse 2s ease-in-out infinite;
+  .logo-text {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--text);
   }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 #00d4aa60; }
-    50% { opacity: 0.7; box-shadow: 0 0 0 6px #00d4aa00; }
-  }
-  .badge {
-    font-family: var(--mono);
-    font-size: 11px;
-    background: var(--accent-glow);
-    border: 1px solid #00d4ff30;
+  .logo-text span {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
     color: var(--accent);
-    padding: 4px 10px;
-    border-radius: 4px;
   }
 
-  /* Layout */
-  main {
-    position: relative;
-    z-index: 1;
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 48px 24px 80px;
-  }
-
-  /* Add note form */
-  .add-section { margin-bottom: 48px; }
-  .section-label {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    margin-bottom: 16px;
+  .header-pills {
     display: flex;
     align-items: center;
     gap: 8px;
   }
-  .section-label::before { content: '//'; color: var(--accent2); }
+  .pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+  }
+  .pill-live {
+    background: rgba(52,211,153,0.1);
+    border: 1px solid rgba(52,211,153,0.25);
+    color: var(--accent2);
+  }
+  .pill-live .dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent2);
+    animation: blink 2s ease-in-out infinite;
+  }
+  @keyframes blink {
+    0%,100%{ opacity:1; box-shadow: 0 0 6px var(--accent2); }
+    50%{ opacity:0.4; box-shadow: none; }
+  }
+  .pill-ci {
+    background: rgba(167,139,250,0.1);
+    border: 1px solid rgba(167,139,250,0.2);
+    color: var(--accent);
+  }
 
-  .form-card {
-    background: rgba(17, 17, 24, 0.7);
-    border: 1px solid var(--border);
-    border-radius: 12px;
+  /* ── Main layout ── */
+  main {
+    position: relative;
+    z-index: 5;
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 56px 32px 100px;
+  }
+
+  /* ── Hero heading ── */
+  .hero {
+    margin-bottom: 52px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .hero-text h1 {
+    font-family: var(--serif);
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .hero-text h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .hero-text p {
+    margin-top: 10px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+  .hero-count {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .hero-count .num {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 48px;
+    line-height: 1;
+    color: var(--accent);
+  }
+  .hero-count .label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* ── Add note form ── */
+  .form-section {
+    margin-bottom: 52px;
+  }
+  .section-eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-eyebrow::before {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 1px;
+    background: var(--muted);
+  }
+
+  .form-glass {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
     padding: 28px;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(20px);
+    transition: border-color 0.3s, box-shadow 0.3s;
   }
-  .form-card:focus-within {
-    border-color: #00d4ff30;
-    box-shadow: 0 0 30px #00d4ff08;
+  .form-glass:focus-within {
+    border-color: rgba(167,139,250,0.3);
+    box-shadow: 0 0 40px rgba(167,139,250,0.06);
   }
+
   .input-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 16px;
+    gap: 12px;
+    margin-bottom: 12px;
   }
+
+  .field-wrap {
+    position: relative;
+  }
+  .field-label {
+    position: absolute;
+    top: 12px;
+    left: 16px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    pointer-events: none;
+    transition: all 0.2s;
+    z-index: 2;
+  }
+
   input[type="text"], textarea {
     width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 16px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 28px 16px 12px;
     color: var(--text);
-    font-family: var(--mono);
-    font-size: 13px;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 500;
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
     resize: none;
+    -webkit-appearance: none;
   }
   input[type="text"]:focus, textarea:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-glow);
+    border-color: rgba(167,139,250,0.4);
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.08);
   }
-  input::placeholder, textarea::placeholder { color: #3a3a52; }
-  textarea { height: 80px; }
+  input[type="text"]::placeholder, textarea::placeholder {
+    color: rgba(241,240,245,0.2);
+    font-weight: 400;
+  }
+  textarea {
+    height: 100px;
+    line-height: 1.6;
+  }
 
-  .form-actions {
+  .form-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -177,297 +286,421 @@
   }
   .char-count {
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: 11px;
     color: var(--muted);
   }
 
-  .btn {
-    font-family: var(--mono);
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 10px 24px;
-    border-radius: 6px;
+  .btn-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 24px;
+    border-radius: 12px;
     border: none;
     cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
-    overflow: hidden;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    background: linear-gradient(135deg, var(--accent), #7c3aed);
+    color: #fff;
+    box-shadow: 0 4px 24px rgba(167,139,250,0.25);
+    transition: transform 0.2s, box-shadow 0.2s;
   }
-  .btn::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    background: rgba(255,255,255,0.1);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition: width 0.4s, height 0.4s;
-  }
-  .btn:active::after { width: 200px; height: 200px; }
-  .btn-primary {
-    background: linear-gradient(135deg, var(--accent), #00b8d9);
-    color: #000;
-    box-shadow: 0 2px 12px #00d4ff20;
-  }
-  .btn-primary:hover {
+  .btn-add:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 20px #00d4ff35;
+    box-shadow: 0 6px 32px rgba(167,139,250,0.35);
   }
-  .btn-danger {
-    background: transparent;
-    color: var(--danger);
-    border: 1px solid #ff475725;
-    font-size: 11px;
-    padding: 7px 14px;
-  }
-  .btn-danger:hover { background: #ff475712; border-color: #ff475740; }
-  .btn-edit {
-    background: transparent;
-    color: var(--accent2);
-    border: 1px solid #7c3aed25;
-    font-size: 11px;
-    padding: 7px 14px;
-  }
-  .btn-edit:hover { background: #7c3aed12; border-color: #7c3aed40; }
-
-  /* Notes grid */
-  .notes-header {
+  .btn-add:active { transform: translateY(0); }
+  .btn-add .plus {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.2);
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
+    justify-content: center;
+    font-size: 16px;
+    line-height: 1;
   }
-  .count {
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--muted);
-  }
-  .count strong { color: var(--accent); }
 
+  /* ── Notes grid ── */
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
     gap: 16px;
   }
 
   .note-card {
-    background: rgba(17, 17, 24, 0.6);
-    border: 1px solid var(--border);
-    border-radius: 12px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
     padding: 24px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-    animation: cardIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    gap: 14px;
+    transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+    animation: cardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    cursor: default;
     position: relative;
     overflow: hidden;
   }
   .note-card::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    inset: 0;
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(167,139,250,0.06) 0%, transparent 60%);
     opacity: 0;
     transition: opacity 0.3s;
   }
   .note-card:hover::before { opacity: 1; }
   .note-card:hover {
-    border-color: var(--border-hover);
+    border-color: rgba(167,139,250,0.25);
     transform: translateY(-3px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
   }
+
+  .note-card:nth-child(1) { animation-delay: 0.04s; }
+  .note-card:nth-child(2) { animation-delay: 0.08s; }
+  .note-card:nth-child(3) { animation-delay: 0.12s; }
+  .note-card:nth-child(4) { animation-delay: 0.16s; }
+  .note-card:nth-child(5) { animation-delay: 0.20s; }
+  .note-card:nth-child(6) { animation-delay: 0.24s; }
 
   @keyframes cardIn {
-    from { opacity: 0; transform: translateY(16px) scale(0.97); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
   }
-  .note-card:nth-child(1) { animation-delay: 0.05s; }
-  .note-card:nth-child(2) { animation-delay: 0.1s; }
-  .note-card:nth-child(3) { animation-delay: 0.15s; }
-  .note-card:nth-child(4) { animation-delay: 0.2s; }
-  .note-card:nth-child(5) { animation-delay: 0.25s; }
-  .note-card:nth-child(6) { animation-delay: 0.3s; }
+
+  .note-number {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: rgba(167,139,250,0.5);
+    letter-spacing: 0.1em;
+  }
 
   .note-title {
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 700;
+    letter-spacing: -0.02em;
     color: var(--text);
     line-height: 1.3;
   }
+
   .note-content {
     font-family: var(--mono);
     font-size: 12px;
-    color: #94a3b8;
-    line-height: 1.6;
+    color: var(--muted);
+    line-height: 1.7;
     flex: 1;
     white-space: pre-wrap;
     word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
+
+  .note-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 14px;
+    border-top: 1px solid var(--glass-border);
+  }
+
   .note-meta {
     font-family: var(--mono);
     font-size: 10px;
-    color: var(--muted);
+    color: rgba(241,240,245,0.3);
     display: flex;
     align-items: center;
     gap: 6px;
   }
-  .meta-dot {
-    width: 3px;
-    height: 3px;
-    background: var(--muted);
-    border-radius: 50%;
+  .edited-badge {
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: rgba(244,114,182,0.1);
+    border: 1px solid rgba(244,114,182,0.2);
+    color: var(--accent3);
+    font-size: 9px;
+    letter-spacing: 0.08em;
   }
-  .note-actions { display: flex; gap: 8px; }
 
-  .empty {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 80px 24px;
-    border: 1px dashed var(--border);
-    border-radius: 12px;
+  .note-actions {
+    display: flex;
+    gap: 6px;
+  }
+  .btn-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: 8px;
     font-family: var(--mono);
-    font-size: 13px;
-    color: var(--muted);
-    animation: cardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .empty-icon {
-    font-size: 40px;
-    margin-bottom: 16px;
-    display: block;
-    animation: float 3s ease-in-out infinite;
-  }
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-  }
-  .empty-sub {
     font-size: 11px;
-    color: #3a3a52;
-    margin-top: 8px;
-  }
-
-  /* Footer */
-  footer {
-    position: relative;
-    z-index: 1;
-    text-align: center;
-    padding: 24px;
-    border-top: 1px solid var(--border);
-    font-family: var(--mono);
-    font-size: 10px;
-    color: #2a2a3a;
-    letter-spacing: 0.15em;
-  }
-  footer a {
-    color: var(--accent);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid transparent;
     text-decoration: none;
   }
+  .btn-edit {
+    background: rgba(167,139,250,0.1);
+    border-color: rgba(167,139,250,0.2);
+    color: var(--accent);
+  }
+  .btn-edit:hover {
+    background: rgba(167,139,250,0.18);
+    border-color: rgba(167,139,250,0.4);
+  }
+  .btn-delete {
+    background: rgba(248,113,113,0.08);
+    border-color: rgba(248,113,113,0.15);
+    color: var(--danger);
+  }
+  .btn-delete:hover {
+    background: rgba(248,113,113,0.15);
+    border-color: rgba(248,113,113,0.3);
+  }
+  .delete-form { display: inline; }
 
-  /* Responsive */
-  @media (max-width: 600px) {
+  /* ── Empty state ── */
+  .empty {
+    grid-column: 1/-1;
+    padding: 80px 24px;
+    text-align: center;
+    border: 1px dashed rgba(255,255,255,0.08);
+    border-radius: 20px;
+    animation: cardIn 0.5s cubic-bezier(0.16,1,0.3,1);
+  }
+  .empty-icon {
+    font-size: 48px;
+    display: block;
+    margin-bottom: 16px;
+    animation: float 4s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%,100%{ transform: translateY(0); }
+    50%{ transform: translateY(-10px); }
+  }
+  .empty h3 {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .empty p {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: rgba(241,240,245,0.2);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── Footer ── */
+  footer {
+    position: relative;
+    z-index: 5;
+    text-align: center;
+    padding: 20px;
+    border-top: 1px solid var(--glass-border);
+    font-family: var(--mono);
+    font-size: 10px;
+    color: rgba(241,240,245,0.2);
+    letter-spacing: 0.15em;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { color: var(--accent2); }
+
+  @media (max-width: 640px) {
     header { padding: 16px 20px; }
-    main { padding: 32px 16px; }
+    main { padding: 32px 20px 80px; }
+    .hero { flex-direction: column; align-items: flex-start; }
     .input-row { grid-template-columns: 1fr; }
     .grid { grid-template-columns: 1fr; }
   }
-
-  /* Delete confirmation */
-  .delete-form { display: inline; }
 </style>
 </head>
 <body>
+
+<canvas id="bg-canvas"></canvas>
+
 <header>
-  <div class="logo">The <span>//</span> Launchpad <span>·</span> Smart Notes</div>
-  <div class="header-right">
-    <div class="pipeline-status">
-      <div class="status-dot"></div>
+  <div class="logo">
+    <div class="logo-mark">SN</div>
+    <div class="logo-text">Smart<span>Notes</span></div>
+  </div>
+  <div class="header-pills">
+    <div class="pill pill-live">
+      <div class="dot"></div>
       Pipeline Active
     </div>
-    <div class="badge">CI/CD LIVE</div>
+    <div class="pill pill-ci">CI/CD LIVE</div>
   </div>
 </header>
 
 <main>
-  <!-- Add Note Section -->
-  <div class="add-section">
-    <div class="section-label">new note</div>
-    <div class="form-card">
+  <div class="hero">
+    <div class="hero-text">
+      <h1>Your <em>thoughts,</em><br>beautifully kept.</h1>
+      <p>// git → github → jenkins → docker → live</p>
+    </div>
+    <div class="hero-count">
+      <div class="num">{{ notes|length }}</div>
+      <div class="label">notes saved</div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="section-eyebrow">Capture a thought</div>
+    <div class="form-glass">
       <form action="/add" method="POST" id="addForm">
         <div class="input-row">
-          <input type="text" name="title" id="noteTitle" placeholder="Note title..." required maxlength="80">
-          <input type="text" name="tag" placeholder="Tag (optional)" maxlength="20">
+          <div class="field-wrap">
+            <div class="field-label">Title</div>
+            <input type="text" name="title" id="noteTitle" placeholder="What's the idea?" required maxlength="80">
+          </div>
+          <div class="field-wrap">
+            <div class="field-label">Tag</div>
+            <input type="text" name="tag" placeholder="Optional tag..." maxlength="20">
+          </div>
         </div>
-        <textarea name="content" id="noteContent" placeholder="What's on your mind..." required maxlength="500"></textarea>
-        <div class="form-actions">
+        <div class="field-wrap">
+          <div class="field-label">Content</div>
+          <textarea name="content" id="noteContent" placeholder="Write something..." required maxlength="500"></textarea>
+        </div>
+        <div class="form-footer">
           <span class="char-count" id="charCount">0 / 500</span>
-          <button type="submit" class="btn btn-primary" id="addNoteBtn">+ Add Note</button>
+          <button type="submit" class="btn-add">
+            <div class="plus">+</div>
+            Add Note
+          </button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Notes Section -->
-  <div class="notes-header">
-    <div class="section-label">notes</div>
-    <div class="count"><strong>{{ notes|length }}</strong> saved</div>
-  </div>
+  <div class="section-eyebrow" style="margin-bottom: 20px;">Your notes</div>
 
   <div class="grid" id="notesGrid">
     {% if notes %}
       {% for note in notes %}
       <div class="note-card">
+        <div class="note-number">#{{ loop.index | string | zfill(2) }}</div>
         <div class="note-title">{{ note.title }}</div>
         <div class="note-content">{{ note.content }}</div>
-        <div class="note-meta">
-          {{ note.created_at }}
-          {% if note.get('updated_at') %}
-            <span class="meta-dot"></span>
-            edited
-          {% endif %}
-        </div>
-        <div class="note-actions">
-          <a href="/edit/{{ note.id }}"><button class="btn btn-edit" type="button">Edit</button></a>
-          <form action="/delete/{{ note.id }}" method="POST" class="delete-form" onsubmit="return confirm('Delete this note?')">
-            <button class="btn btn-danger" type="submit">Delete</button>
-          </form>
+        <div class="note-footer">
+          <div class="note-meta">
+            {{ note.created_at }}
+            {% if note.get('updated_at') %}
+              <span class="edited-badge">edited</span>
+            {% endif %}
+          </div>
+          <div class="note-actions">
+            <a href="/edit/{{ note.id }}" class="btn-icon btn-edit">✎ Edit</a>
+            <form action="/delete/{{ note.id }}" method="POST" class="delete-form" onsubmit="return confirm('Delete this note?')">
+              <button class="btn-icon btn-delete" type="submit">✕</button>
+            </form>
+          </div>
         </div>
       </div>
       {% endfor %}
     {% else %}
       <div class="empty">
-        <span class="empty-icon">📝</span>
-        No notes yet — add your first one above.
-        <span class="empty-sub">Your notes are safely stored in your local memory file.</span>
+        <span class="empty-icon">✦</span>
+        <h3>Nothing here yet.</h3>
+        <p>Add your first note above to get started.</p>
       </div>
     {% endif %}
   </div>
 </main>
 
 <footer>
-  Launchpad Protocol <span>·</span> Git → GitHub → Jenkins → Docker → <a href="/health">Live</a>
+  Launchpad Protocol &nbsp;·&nbsp; Git → GitHub → Jenkins → Docker → <a href="/health">Live</a>
 </footer>
 
 <script>
-  // Character counter
+  // ── Animated mesh background ──
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, t = 0;
+  const colors = [
+    [167, 139, 250],
+    [52, 211, 153],
+    [244, 114, 182],
+    [96, 165, 250],
+  ];
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const orbs = colors.map((c, i) => ({
+    c,
+    x: 0.2 + (i * 0.22),
+    y: 0.2 + (i * 0.25),
+    r: 0.35 + i * 0.05,
+    sx: 0.0003 + i * 0.00007,
+    sy: 0.0004 + i * 0.00009,
+    px: Math.random() * Math.PI * 2,
+    py: Math.random() * Math.PI * 2,
+  }));
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    t += 0.008;
+    orbs.forEach(o => {
+      const x = (o.x + Math.sin(t * o.sx * 1000 + o.px) * 0.3) * W;
+      const y = (o.y + Math.cos(t * o.sy * 1000 + o.py) * 0.3) * H;
+      const r = o.r * Math.min(W, H);
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, `rgba(${o.c[0]},${o.c[1]},${o.c[2]},0.12)`);
+      g.addColorStop(1, `rgba(${o.c[0]},${o.c[1]},${o.c[2]},0)`);
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  // ── Character counter ──
   const textarea = document.getElementById('noteContent');
   const counter = document.getElementById('charCount');
   if (textarea && counter) {
     textarea.addEventListener('input', () => {
       const len = textarea.value.length;
       counter.textContent = len + ' / 500';
-      counter.style.color = len > 450 ? '#ff4757' : len > 350 ? '#ffa502' : '#4a5568';
+      counter.style.color = len > 450 ? '#f87171' : len > 350 ? '#fbbf24' : 'rgba(241,240,245,0.45)';
     });
   }
+
+  // ── Mouse parallax on cards ──
+  document.addEventListener('mousemove', e => {
+    const cards = document.querySelectorAll('.note-card');
+    const mx = (e.clientX / window.innerWidth - 0.5) * 2;
+    const my = (e.clientY / window.innerHeight - 0.5) * 2;
+    cards.forEach(card => {
+      const rect = card.getBoundingClientRect();
+      const cx = (rect.left + rect.width / 2) / window.innerWidth;
+      const cy = (rect.top + rect.height / 2) / window.innerHeight;
+      const dx = (e.clientX / window.innerWidth - cx) * 6;
+      const dy = (e.clientY / window.innerHeight - cy) * 6;
+      card.style.transform = `perspective(800px) rotateY(${dx * 0.3}deg) rotateX(${-dy * 0.3}deg) translateY(-3px)`;
+    });
+  });
+  document.querySelectorAll('.note-card').forEach(c => {
+    c.addEventListener('mouseleave', () => {
+      c.style.transform = '';
+    });
+  });
 </script>
 </body>
 </html>

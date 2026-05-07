@@ -3,230 +3,450 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Edit your note — Smart Notes Launchpad">
-<title>Edit Note · Launchpad</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<title>Edit Note · Smart Notes</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&family=Cabinet+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #c09f31;
-    --surface: #111118;
-    --border: #1e1e2e;
-    --accent: #00d4ff;
-    --accent-glow: #00d4ff25;
-    --accent2: #7c3aed;
-    --text: #e2e8f0;
-    --muted: #8d3c7f;
-    --mono: 'JetBrains Mono', monospace;
-    --sans: 'Syne', sans-serif;
+    --bg: #080810;
+    --glass: rgba(255,255,255,0.04);
+    --glass-border: rgba(255,255,255,0.08);
+    --accent: #a78bfa;
+    --accent2: #34d399;
+    --accent3: #f472b6;
+    --text: #f1f0f5;
+    --muted: rgba(241,240,245,0.45);
+    --mono: 'DM Mono', monospace;
+    --serif: 'Instrument Serif', serif;
+    --sans: 'Cabinet Grotesk', sans-serif;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
   body {
     background: var(--bg);
     color: var(--text);
     font-family: var(--sans);
     min-height: 100vh;
-    position: relative;
+    overflow-x: hidden;
   }
-  body::before {
-    content: '';
+
+  #bg-canvas {
     position: fixed;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(ellipse at 30% 40%, #7c3aed08 0%, transparent 50%),
-                radial-gradient(ellipse at 70% 60%, #00d4ff08 0%, transparent 50%);
+    inset: 0;
     z-index: 0;
     pointer-events: none;
   }
 
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 128px;
+    opacity: 0.6;
+  }
+
   header {
     position: relative;
-    z-index: 1;
-    border-bottom: 1px solid var(--border);
-    padding: 20px 40px;
+    z-index: 10;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: rgba(10, 10, 15, 0.8);
-    backdrop-filter: blur(20px);
+    padding: 20px 40px;
+    border-bottom: 1px solid var(--glass-border);
+    background: rgba(8,8,16,0.6);
+    backdrop-filter: blur(24px);
   }
+
   .logo {
-    font-family: var(--mono);
-    font-weight: 700;
-    font-size: 13px;
-    letter-spacing: 0.2em;
-    color: var(--accent);
-    text-transform: uppercase;
-  }
-  .logo span { color: var(--muted); }
-  .back-link {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--muted);
-    text-decoration: none;
-    transition: color 0.2s;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 10px;
   }
-  .back-link:hover { color: var(--accent); }
+  .logo-mark {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: #080810;
+  }
+  .logo-text {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+  .logo-text span {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 11px;
+    text-decoration: none;
+    transition: all 0.2s;
+    letter-spacing: 0.04em;
+  }
+  .back-btn:hover {
+    background: rgba(255,255,255,0.08);
+    color: var(--text);
+    border-color: rgba(255,255,255,0.15);
+  }
+  .back-btn .arrow { font-size: 14px; }
 
   main {
     position: relative;
-    z-index: 1;
+    z-index: 5;
     max-width: 680px;
     margin: 0 auto;
-    padding: 64px 24px;
-    animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    padding: 64px 32px 100px;
+    animation: fadeUp 0.4s cubic-bezier(0.16,1,0.3,1);
   }
   @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
-  .section-label {
+  .page-heading {
+    margin-bottom: 36px;
+  }
+  .page-eyebrow {
     font-family: var(--mono);
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 0.15em;
+    font-size: 10px;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    margin-bottom: 24px;
+    color: var(--accent);
+    margin-bottom: 10px;
     display: flex;
     align-items: center;
     gap: 8px;
   }
-  .section-label::before { content: '//'; color: var(--accent2); }
-
-  .form-card {
-    background: rgba(17, 17, 24, 0.7);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 32px;
-    backdrop-filter: blur(10px);
-    transition: border-color 0.3s, box-shadow 0.3s;
-  }
-  .form-card:focus-within {
-    border-color: #7c3aed30;
-    box-shadow: 0 0 30px #7c3aed08;
-  }
-
-  .field { margin-bottom: 20px; }
-  label {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
+  .page-eyebrow::before {
+    content: '';
     display: block;
-    margin-bottom: 8px;
+    width: 20px;
+    height: 1px;
+    background: var(--accent);
+    opacity: 0.5;
   }
-  input[type="text"], textarea {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 16px;
+  .page-heading h1 {
+    font-family: var(--serif);
+    font-size: 36px;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.02em;
     color: var(--text);
-    font-family: var(--mono);
-    font-size: 13px;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    resize: none;
+    line-height: 1.15;
   }
-  input[type="text"]:focus, textarea:focus {
-    border-color: var(--accent2);
-    box-shadow: 0 0 0 3px #7c3aed20;
-  }
-  textarea { height: 180px; line-height: 1.6; }
-
-  .actions {
-    display: flex;
-    gap: 12px;
-    margin-top: 28px;
-  }
-  .btn {
-    font-family: var(--mono);
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 10px 24px;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-decoration: none;
+  .note-id-badge {
+    margin-top: 10px;
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(167,139,250,0.08);
+    border: 1px solid rgba(167,139,250,0.15);
+    font-family: var(--mono);
+    font-size: 10px;
+    color: rgba(167,139,250,0.7);
+    letter-spacing: 0.06em;
   }
-  .btn-primary {
-    background: linear-gradient(135deg, var(--accent2), #6d28d9);
-    color: #fff;
-    box-shadow: 0 2px 12px #7c3aed20;
+
+  .form-glass {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 32px;
+    backdrop-filter: blur(20px);
+    transition: border-color 0.3s, box-shadow 0.3s;
   }
-  .btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 20px #7c3aed35;
+  .form-glass:focus-within {
+    border-color: rgba(167,139,250,0.25);
+    box-shadow: 0 0 60px rgba(167,139,250,0.05);
   }
-  .btn-ghost {
-    background: transparent;
+
+  .field {
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .field-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
     color: var(--muted);
-    border: 1px solid var(--border);
+    margin-bottom: 8px;
+    display: block;
   }
-  .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+
+  input[type="text"], textarea {
+    width: 100%;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 500;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    resize: none;
+    -webkit-appearance: none;
+  }
+  input[type="text"]:focus, textarea:focus {
+    border-color: rgba(167,139,250,0.4);
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.08);
+  }
+  textarea { height: 200px; line-height: 1.7; font-size: 14px; }
 
   .char-info {
     font-family: var(--mono);
     font-size: 10px;
     color: var(--muted);
     text-align: right;
-    margin-top: 8px;
+    margin-top: 6px;
   }
 
-  @media (max-width: 600px) {
+  .divider {
+    height: 1px;
+    background: var(--glass-border);
+    margin: 28px 0;
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .btn-save {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    background: linear-gradient(135deg, var(--accent), #7c3aed);
+    color: #fff;
+    box-shadow: 0 4px 24px rgba(167,139,250,0.25);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-save:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 32px rgba(167,139,250,0.35);
+  }
+  .btn-save:active { transform: translateY(0); }
+
+  .btn-cancel {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 20px;
+    border-radius: 12px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    color: var(--muted);
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-cancel:hover {
+    background: rgba(255,255,255,0.07);
+    color: var(--text);
+    border-color: rgba(255,255,255,0.15);
+  }
+
+  /* live preview */
+  .preview-section {
+    margin-top: 32px;
+  }
+  .preview-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(241,240,245,0.2);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .preview-label::before {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 1px;
+    background: rgba(241,240,245,0.15);
+  }
+  .preview-card {
+    background: rgba(167,139,250,0.05);
+    border: 1px solid rgba(167,139,250,0.12);
+    border-radius: 16px;
+    padding: 20px;
+  }
+  .preview-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 8px;
+    min-height: 24px;
+  }
+  .preview-content {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 20px;
+  }
+
+  @media (max-width: 640px) {
     header { padding: 16px 20px; }
-    main { padding: 32px 16px; }
-    .form-card { padding: 24px; }
+    main { padding: 40px 20px 80px; }
+    .form-glass { padding: 24px; }
   }
 </style>
 </head>
 <body>
+
+<canvas id="bg-canvas"></canvas>
+
 <header>
-  <div class="logo">The <span>//</span> Launchpad <span>·</span> Edit Note</div>
-  <a href="/" class="back-link">← Back to Notes</a>
+  <div class="logo">
+    <div class="logo-mark">SN</div>
+    <div class="logo-text">Smart<span>Notes</span></div>
+  </div>
+  <a href="/" class="back-btn">
+    <span class="arrow">←</span> Back to notes
+  </a>
 </header>
+
 <main>
-  <div class="section-label">editing note</div>
-  <div class="form-card">
-    <form action="/edit/{{ note.id }}" method="POST">
+  <div class="page-heading">
+    <div class="page-eyebrow">Editing</div>
+    <h1>Refine your thought.</h1>
+    <div class="note-id-badge">id: {{ note.id[:8] }}…</div>
+  </div>
+
+  <div class="form-glass">
+    <form action="/edit/{{ note.id }}" method="POST" id="editForm">
       <div class="field">
-        <label for="editTitle">Title</label>
+        <label class="field-label" for="editTitle">Title</label>
         <input type="text" name="title" id="editTitle" value="{{ note.title }}" required maxlength="80">
       </div>
       <div class="field">
-        <label for="editContent">Content</label>
+        <label class="field-label" for="editContent">Content</label>
         <textarea name="content" id="editContent" required maxlength="500">{{ note.content }}</textarea>
         <div class="char-info" id="editCharCount">0 / 500</div>
       </div>
+
+      <div class="divider"></div>
+
       <div class="actions">
-        <button type="submit" class="btn btn-primary">✓ Save Changes</button>
-        <a href="/" class="btn btn-ghost">Cancel</a>
+        <button type="submit" class="btn-save">✓ Save Changes</button>
+        <a href="/" class="btn-cancel">Cancel</a>
       </div>
     </form>
+  </div>
+
+  <div class="preview-section">
+    <div class="preview-label">Live preview</div>
+    <div class="preview-card">
+      <div class="preview-title" id="previewTitle">{{ note.title }}</div>
+      <div class="preview-content" id="previewContent">{{ note.content }}</div>
+    </div>
   </div>
 </main>
 
 <script>
-  const textarea = document.getElementById('editContent');
-  const counter = document.getElementById('editCharCount');
-  function updateCount() {
-    const len = textarea.value.length;
-    counter.textContent = len + ' / 500';
-    counter.style.color = len > 450 ? '#ff4757' : len > 350 ? '#ffa502' : '#4a5568';
+  // ── Background ──
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, t = 0;
+  const colors = [[167,139,250],[244,114,182],[52,211,153],[96,165,250]];
+
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const orbs = colors.map((c, i) => ({
+    c, x: 0.2 + i * 0.22, y: 0.2 + i * 0.25,
+    sx: 0.0003 + i * 0.00007, sy: 0.0004 + i * 0.00009,
+    px: Math.random() * Math.PI * 2, py: Math.random() * Math.PI * 2,
+  }));
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    t += 0.006;
+    orbs.forEach(o => {
+      const x = (o.x + Math.sin(t * o.sx * 1000 + o.px) * 0.3) * W;
+      const y = (o.y + Math.cos(t * o.sy * 1000 + o.py) * 0.3) * H;
+      const r = 0.38 * Math.min(W, H);
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, `rgba(${o.c[0]},${o.c[1]},${o.c[2]},0.10)`);
+      g.addColorStop(1, `rgba(${o.c[0]},${o.c[1]},${o.c[2]},0)`);
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
   }
-  textarea.addEventListener('input', updateCount);
+  draw();
+
+  // ── Char counter + live preview ──
+  const titleEl = document.getElementById('editTitle');
+  const contentEl = document.getElementById('editContent');
+  const counter = document.getElementById('editCharCount');
+  const previewTitle = document.getElementById('previewTitle');
+  const previewContent = document.getElementById('previewContent');
+
+  function updateCount() {
+    const len = contentEl.value.length;
+    counter.textContent = len + ' / 500';
+    counter.style.color = len > 450 ? '#f87171' : len > 350 ? '#fbbf24' : 'rgba(241,240,245,0.45)';
+  }
+
+  contentEl.addEventListener('input', () => {
+    updateCount();
+    previewContent.textContent = contentEl.value;
+  });
+
+  titleEl.addEventListener('input', () => {
+    previewTitle.textContent = titleEl.value;
+  });
+
   updateCount();
 </script>
 </body>
