@@ -7,6 +7,7 @@ pipeline {
         CONTAINER    = "notes-app-live"
         REGISTRY     = "abhilashcn2004"        // ← configured Docker Hub ID
         PORT         = "5000"
+        PATH         = "C:\\Program Files\\Git\\bin;${env.PATH}"
     }
 
     stages {
