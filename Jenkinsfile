@@ -34,18 +34,31 @@ pipeline {
         stage('Smoke Test') {
             steps {
                 script {
-                    // Spin up a temp container and hit /health
                     def testId = "smoke-${BUILD_NUMBER}"
+                    bat "docker rm -f ${testId} || exit 0"
                     bat "docker run -d --name ${testId} -p 5100:5000 ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
-                    sleep 3
-                    def status = bat(
-                        script: '@echo off\ncurl -s -o NUL -w "%%{http_code}" http://localhost:5100/health',
-                        returnStdout: true
-                    ).trim()
-                    bat "docker rm -f ${testId}"
+
+                    def status = ''
+                    try {
+                        timeout(time: 60, unit: 'SECONDS') {
+                            waitUntil {
+                                status = bat(
+                                    script: '@echo off\r\ncurl -s -o NUL -w "%%{http_code}" http://127.0.0.1:5100/health || echo 000',
+                                    returnStdout: true
+                                ).trim()[-3..-1]
+                                return status == '200'
+                            }
+                        }
+                    } finally {
+                        if (status != '200') {
+                            bat "docker ps -a --filter name=${testId}"
+                            bat "docker logs ${testId} || exit 0"
+                        }
+                        bat "docker rm -f ${testId} || exit 0"
+                    }
 
                     if (status != '200') {
-                        error("❌ Smoke test failed — /health returned ${status}")
+                        error("❌ Smoke test failed — /health returned ${status}. Check docker logs above.")
                     }
                     echo "✅ Smoke test passed (HTTP ${status})"
                 }
@@ -92,11 +105,23 @@ pipeline {
         stage('Health Check') {
             steps {
                 script {
-                    sleep 5   // Give the container a moment to start
-                    def status = bat(
-                        script: '@echo off\ncurl -s -o NUL -w "%%{http_code}" http://localhost:${PORT}/health',
-                        returnStdout: true
-                    ).trim()
+                    def status = ''
+                    try {
+                        timeout(time: 60, unit: 'SECONDS') {
+                            waitUntil {
+                                status = bat(
+                                    script: '@echo off\r\ncurl -s -o NUL -w "%%{http_code}" http://127.0.0.1:%PORT%/health || echo 000',
+                                    returnStdout: true
+                                ).trim()[-3..-1]
+                                return status == '200'
+                            }
+                        }
+                    } finally {
+                        if (status != '200') {
+                            bat "docker ps -a --filter name=${CONTAINER}"
+                            bat "docker logs ${CONTAINER} || exit 0"
+                        }
+                    }
 
                     if (status != '200') {
                         error("❌ Post-deploy health check failed — HTTP ${status}")
