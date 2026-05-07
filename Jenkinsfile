@@ -60,7 +60,7 @@ pipeline {
                     usernameVariable: 'DH_USER',
                     passwordVariable: 'DH_PASS'
                 )]) {
-                    bat '@echo off\necho %DH_PASS%| docker login -u %DH_USER% --password-stdin'
+                    bat 'docker login -u "%DH_USER%" -p "%DH_PASS%"'
                     bat "docker push ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
                     // Also tag as latest
                     bat "docker tag ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} ${REGISTRY}/${IMAGE_NAME}:latest"
