@@ -59,9 +59,13 @@ pipeline {
                     passwordVariable: 'DH_PASS'
                 )]) {
                     bat 'docker login -u "%DH_USER%" -p "%DH_PASS%"'
-                    bat "docker push ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    retry(3) {
+                        bat "docker push ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    }
                     bat "docker tag ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} ${REGISTRY}/${IMAGE_NAME}:latest"
-                    bat "docker push ${REGISTRY}/${IMAGE_NAME}:latest"
+                    retry(3) {
+                        bat "docker push ${REGISTRY}/${IMAGE_NAME}:latest"
+                    }
                 }
                 echo "📦 Image pushed to Docker Hub"
             }
@@ -73,7 +77,8 @@ pipeline {
                     bat "docker stop ${CONTAINER} || exit 0"
                     bat "docker rm   ${CONTAINER} || exit 0"
                     bat "docker pull ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
-                    bat "docker run -d --name ${CONTAINER} --restart unless-stopped -p ${PORT}:5000 ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    // notes-data volume keeps your notes alive across deployments
+                    bat "docker run -d --name ${CONTAINER} --restart unless-stopped -p ${PORT}:5000 -v notes-data:/data ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
                 }
                 echo "🚀 Container deployed on port ${PORT}"
             }
