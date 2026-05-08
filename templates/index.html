@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,22 +8,41 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #0c0c0f;
-    --surface: #141418;
-    --surface2: #1a1a1f;
-    --border: rgba(255,255,255,0.07);
-    --border-hover: rgba(255,255,255,0.14);
-    --text: #f0f0f2;
-    --text2: rgba(240,240,242,0.5);
-    --text3: rgba(240,240,242,0.25);
-    --accent: #7b6ef6;
-    --accent-soft: rgba(123,110,246,0.12);
-    --green: #34c98a;
-    --green-soft: rgba(52,201,138,0.1);
-    --pink: #f06292;
-    --danger: #e05c5c;
-    --radius: 14px;
-    --radius-sm: 8px;
+    --bg:           #0c0c0f;
+    --surface:      #141418;
+    --surface2:     #1a1a1f;
+    --border:       rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.15);
+    --text:         #f0f0f2;
+    --text2:        rgba(240,240,242,0.55);
+    --text3:        rgba(240,240,242,0.28);
+    --accent:       #7b6ef6;
+    --accent-soft:  rgba(123,110,246,0.12);
+    --green:        #34c98a;
+    --green-soft:   rgba(52,201,138,0.1);
+    --pink:         #f06292;
+    --danger:       #e05c5c;
+    --shadow:       rgba(0,0,0,0.35);
+    --radius:       14px;
+    --radius-sm:    9px;
+  }
+
+  [data-theme="light"] {
+    --bg:           #f4f4f8;
+    --surface:      #ffffff;
+    --surface2:     #ededf2;
+    --border:       rgba(0,0,0,0.09);
+    --border-hover: rgba(0,0,0,0.18);
+    --text:         #111114;
+    --text2:        rgba(17,17,20,0.58);
+    --text3:        rgba(17,17,20,0.38);
+    --accent:       #5b4fe0;
+    --accent-soft:  rgba(91,79,224,0.1);
+    --green:        #1a9e68;
+    --green-soft:   rgba(26,158,104,0.1);
+    --pink:         #c93070;
+    --danger:       #c04040;
+    --shadow:       rgba(0,0,0,0.07);
   }
 
   body {
@@ -33,404 +52,211 @@
     font-size: 14px;
     min-height: 100vh;
     overflow-x: hidden;
+    transition: background 0.3s, color 0.3s;
   }
 
-  /* ── Cursor glow ── */
   #cursor-glow {
-    position: fixed;
-    width: 500px;
-    height: 500px;
-    border-radius: 50%;
+    position: fixed; width: 500px; height: 500px; border-radius: 50%;
     background: radial-gradient(circle, rgba(123,110,246,0.08) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-    transform: translate(-50%, -50%);
-    transition: opacity 0.3s;
+    pointer-events: none; z-index: 0; transform: translate(-50%, -50%);
   }
+  #particle-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.5; }
 
-  /* ── Canvas for floating particles ── */
-  #particle-canvas {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.5;
-  }
-
-  /* ── Header ── */
   header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
     padding: 14px 32px;
-    background: rgba(12,12,15,0.85);
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
     backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--border);
+    transition: background 0.3s, border-color 0.3s;
   }
 
   .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: -0.3px;
-    color: var(--text);
+    display: flex; align-items: center; gap: 10px;
+    font-size: 15px; font-weight: 700; letter-spacing: -0.4px; color: var(--text);
   }
   .logo-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 8px var(--accent);
-    animation: pulse 2.5s ease-in-out infinite;
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 9px var(--accent);
+    animation: pulse 2.5s ease-in-out infinite; flex-shrink: 0;
   }
   @keyframes pulse {
-    0%,100% { opacity: 1; box-shadow: 0 0 8px var(--accent); }
-    50% { opacity: 0.5; box-shadow: 0 0 3px var(--accent); }
+    0%,100%{ opacity:1; box-shadow:0 0 9px var(--accent); }
+    50%     { opacity:0.5; box-shadow:0 0 3px var(--accent); }
   }
 
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+  .header-right { display: flex; align-items: center; gap: 8px; }
+
   .tag {
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.02em;
+    display: flex; align-items: center; gap: 5px;
+    padding: 5px 11px; border-radius: 20px;
+    font-size: 11px; font-weight: 600;
   }
   .tag-green {
-    background: var(--green-soft);
-    border: 1px solid rgba(52,201,138,0.2);
-    color: var(--green);
+    background: var(--green-soft); border: 1px solid rgba(52,201,138,0.22); color: var(--green);
   }
   .tag-purple {
-    background: var(--accent-soft);
-    border: 1px solid rgba(123,110,246,0.2);
-    color: var(--accent);
+    background: var(--accent-soft); border: 1px solid rgba(123,110,246,0.22); color: var(--accent);
   }
+  .tag .dot { width:6px; height:6px; border-radius:50%; background:currentColor; animation:pulse 2s ease-in-out infinite; }
 
-  /* ── Main ── */
+  /* ── Theme toggle ── */
+  .theme-toggle {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: var(--surface); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 17px;
+    transition: all 0.2s; flex-shrink: 0;
+  }
+  .theme-toggle:hover {
+    background: var(--surface2); border-color: var(--border-hover); transform: scale(1.1);
+  }
+  .icon-sun  { display: block; }
+  .icon-moon { display: none;  }
+  [data-theme="light"] .icon-sun  { display: none;  }
+  [data-theme="light"] .icon-moon { display: block; }
+
   main {
-    position: relative;
-    z-index: 1;
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 48px 32px 80px;
+    position: relative; z-index: 1;
+    max-width: 980px; margin: 0 auto; padding: 48px 32px 80px;
   }
 
-  /* ── Hero ── */
   .hero {
-    margin-bottom: 44px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-bottom: 40px; gap: 24px;
   }
   .hero h1 {
-    font-size: 28px;
-    font-weight: 700;
-    letter-spacing: -0.6px;
-    line-height: 1.2;
-    color: var(--text);
+    font-size: 26px; font-weight: 700; letter-spacing: -0.6px; line-height: 1.25; color: var(--text);
   }
   .hero h1 span { color: var(--accent); }
-  .hero-sub {
-    margin-top: 6px;
-    font-size: 12px;
-    color: var(--text3);
-    letter-spacing: 0.03em;
-  }
-  .note-count {
-    text-align: right;
-  }
-  .note-count .num {
-    font-size: 40px;
-    font-weight: 700;
-    letter-spacing: -2px;
-    color: var(--accent);
-    line-height: 1;
-  }
-  .note-count .lbl {
-    font-size: 11px;
-    color: var(--text3);
-    margin-top: 2px;
-    letter-spacing: 0.05em;
+  .hero-sub { margin-top: 7px; font-size: 12px; color: var(--text3); letter-spacing: 0.04em; }
+  .hero-count { text-align: right; flex-shrink: 0; }
+  .hero-count .num { font-size: 42px; font-weight: 800; letter-spacing: -3px; color: var(--accent); line-height: 1; }
+  .hero-count .lbl { font-size: 11px; color: var(--text3); margin-top: 3px; text-transform: uppercase; }
+
+  .eyebrow {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--text3); margin-bottom: 14px;
   }
 
-  /* ── Form card ── */
   .form-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 24px;
-    margin-bottom: 40px;
-    transition: border-color 0.2s;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px; margin-bottom: 44px;
+    box-shadow: 0 2px 12px var(--shadow);
+    transition: border-color 0.25s, background 0.3s, box-shadow 0.3s;
   }
-  .form-card:focus-within {
-    border-color: rgba(123,110,246,0.3);
+  .form-card:focus-within { border-color: rgba(123,110,246,0.35); }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+
+  .field label {
+    display: block; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 7px;
   }
 
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 10px;
+  input[type="text"], textarea {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 10px 14px;
+    color: var(--text); font-family: inherit; font-size: 14px;
+    outline: none; resize: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.3s;
   }
-
-  .input-group {
-    position: relative;
-  }
-  .input-group label {
-    display: block;
-    font-size: 11px;
-    color: var(--text3);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-    font-weight: 500;
-  }
-
-  input[type="text"],
-  textarea {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 10px 14px;
-    color: var(--text);
-    font-family: inherit;
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    resize: none;
-  }
-  input[type="text"]:focus,
-  textarea:focus {
-    border-color: rgba(123,110,246,0.5);
-    box-shadow: 0 0 0 3px rgba(123,110,246,0.08);
+  input[type="text"]:focus, textarea:focus {
+    border-color: rgba(123,110,246,0.5); box-shadow: 0 0 0 3px rgba(123,110,246,0.1);
   }
   input::placeholder, textarea::placeholder { color: var(--text3); }
-  textarea { height: 88px; line-height: 1.55; }
+  textarea { height: 90px; line-height: 1.6; }
 
-  .form-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 14px;
-  }
+  .form-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
   .char-count { font-size: 11px; color: var(--text3); }
 
-  .btn-primary {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 9px 20px;
-    border-radius: var(--radius-sm);
-    border: none;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 600;
-    background: var(--accent);
-    color: #fff;
+  .btn-add {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 22px; border-radius: var(--radius-sm);
+    border: none; cursor: pointer; font-family: inherit;
+    font-size: 13px; font-weight: 700; background: var(--accent); color: #fff;
     transition: all 0.2s;
-    letter-spacing: -0.2px;
   }
-  .btn-primary:hover {
-    background: #8f82f8;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(123,110,246,0.3);
-  }
-  .btn-primary:active { transform: translateY(0); }
+  .btn-add:hover { background: #9187f8; transform: translateY(-1px); box-shadow: 0 4px 18px rgba(123,110,246,0.35); }
+  .btn-add:active { transform: translateY(0); }
 
-  /* ── Section label ── */
-  .section-label {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text3);
-    margin-bottom: 16px;
-  }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(285px,1fr)); gap: 14px; }
 
-  /* ── Grid ── */
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 14px;
-  }
-
-  /* ── Note card ── */
   .note-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    cursor: default;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+    display: flex; flex-direction: column; gap: 10px;
+    cursor: default; position: relative; overflow: hidden;
+    box-shadow: 0 1px 4px var(--shadow);
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.3s;
     animation: fadeUp 0.4s cubic-bezier(0.16,1,0.3,1) backwards;
-    will-change: transform;
-    transform-style: preserve-3d;
-    position: relative;
-    overflow: hidden;
   }
-
-  /* shimmer line on hover */
   .note-card::after {
-    content: '';
-    position: absolute;
-    top: 0; left: -100%;
-    width: 60%;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(123,110,246,0.6), transparent);
-    transition: left 0.5s ease;
+    content: ''; position: absolute; top: 0; left: -100%; width: 55%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(123,110,246,0.7), transparent);
+    transition: left 0.55s ease;
   }
-  .note-card:hover::after { left: 140%; }
-  .note-card:hover {
-    border-color: var(--border-hover);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.35);
-  }
+  .note-card:hover::after { left: 150%; }
+  .note-card:hover { border-color: var(--border-hover); box-shadow: 0 8px 36px var(--shadow); }
 
-  .note-card:nth-child(1) { animation-delay: 0.03s; }
-  .note-card:nth-child(2) { animation-delay: 0.06s; }
-  .note-card:nth-child(3) { animation-delay: 0.09s; }
-  .note-card:nth-child(4) { animation-delay: 0.12s; }
-  .note-card:nth-child(5) { animation-delay: 0.15s; }
-  .note-card:nth-child(6) { animation-delay: 0.18s; }
+  .note-card:nth-child(1){animation-delay:.03s} .note-card:nth-child(2){animation-delay:.06s}
+  .note-card:nth-child(3){animation-delay:.09s} .note-card:nth-child(4){animation-delay:.12s}
+  .note-card:nth-child(5){animation-delay:.15s} .note-card:nth-child(6){animation-delay:.18s}
 
-  @keyframes fadeUp {
-    from { opacity:0; transform: translateY(14px); }
-    to   { opacity:1; transform: translateY(0); }
-  }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
 
-  .note-title {
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: -0.3px;
-    color: var(--text);
-    line-height: 1.3;
-  }
+  .note-title { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; color: var(--text); line-height: 1.3; }
   .note-body {
-    font-size: 13px;
-    color: var(--text2);
-    line-height: 1.6;
-    flex: 1;
-    white-space: pre-wrap;
-    word-break: break-word;
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    font-size: 13px; color: var(--text2); line-height: 1.65; flex: 1;
+    white-space: pre-wrap; word-break: break-word;
+    display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
   }
   .note-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: 12px;
-    border-top: 1px solid var(--border);
-    margin-top: 2px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 12px; border-top: 1px solid var(--border);
   }
-  .note-date {
-    font-size: 11px;
-    color: var(--text3);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
+  .note-date { font-size: 11px; color: var(--text3); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .edited-pill {
-    padding: 2px 7px;
-    border-radius: 4px;
-    font-size: 10px;
-    background: rgba(240,98,146,0.1);
-    border: 1px solid rgba(240,98,146,0.18);
-    color: var(--pink);
+    padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 600;
+    background: rgba(240,98,146,0.1); border: 1px solid rgba(240,98,146,0.2); color: var(--pink);
   }
   .note-actions { display: flex; gap: 6px; }
 
   .btn-sm {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 5px 11px;
-    border-radius: 6px;
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s;
-    border: 1px solid transparent;
-    text-decoration: none;
-    background: none;
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 5px 11px; border-radius: 7px; font-family: inherit;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    transition: all 0.15s; border: 1px solid transparent; text-decoration: none; background: none;
   }
-  .btn-edit {
-    background: var(--accent-soft);
-    border-color: rgba(123,110,246,0.18);
-    color: var(--accent);
-  }
-  .btn-edit:hover {
-    background: rgba(123,110,246,0.18);
-    border-color: rgba(123,110,246,0.35);
-  }
-  .btn-delete {
-    background: rgba(224,92,92,0.08);
-    border-color: rgba(224,92,92,0.15);
-    color: var(--danger);
-  }
-  .btn-delete:hover {
-    background: rgba(224,92,92,0.15);
-    border-color: rgba(224,92,92,0.3);
-  }
+  .btn-edit { background: var(--accent-soft); border-color: rgba(123,110,246,0.22); color: var(--accent); }
+  .btn-edit:hover { background: rgba(123,110,246,0.2); border-color: rgba(123,110,246,0.4); }
+  .btn-delete { background: rgba(224,92,92,0.08); border-color: rgba(224,92,92,0.18); color: var(--danger); }
+  .btn-delete:hover { background: rgba(224,92,92,0.16); border-color: rgba(224,92,92,0.35); }
   .delete-form { display: inline; }
 
-  /* ── Empty ── */
   .empty {
-    grid-column: 1/-1;
-    text-align: center;
-    padding: 72px 24px;
-    border: 1px dashed var(--border);
-    border-radius: var(--radius);
+    grid-column: 1/-1; text-align: center; padding: 72px 24px;
+    border: 1px dashed var(--border); border-radius: var(--radius);
   }
-  .empty-icon {
-    font-size: 36px;
-    display: block;
-    margin-bottom: 14px;
-    animation: float 3.5s ease-in-out infinite;
-  }
-  @keyframes float {
-    0%,100%{ transform:translateY(0); }
-    50%{ transform:translateY(-8px); }
-  }
+  .empty-icon { font-size: 38px; display: block; margin-bottom: 14px; animation: float 4s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-9px)} }
   .empty h3 { font-size: 16px; font-weight: 600; color: var(--text2); margin-bottom: 6px; }
   .empty p  { font-size: 12px; color: var(--text3); }
 
-  /* ── Footer ── */
   footer {
-    position: relative;
-    z-index: 1;
-    text-align: center;
-    padding: 18px;
-    border-top: 1px solid var(--border);
-    font-size: 11px;
-    color: var(--text3);
-    letter-spacing: 0.05em;
+    position: relative; z-index: 1; text-align: center; padding: 18px;
+    border-top: 1px solid var(--border); font-size: 11px; color: var(--text3);
+    letter-spacing: 0.05em; transition: border-color 0.3s;
   }
   footer a { color: var(--accent); text-decoration: none; }
 
   @media (max-width: 600px) {
     header { padding: 12px 16px; }
-    main { padding: 28px 16px 60px; }
+    main   { padding: 28px 16px 60px; }
     .form-row { grid-template-columns: 1fr; }
-    .grid { grid-template-columns: 1fr; }
-    .hero { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .grid     { grid-template-columns: 1fr; }
+    .hero     { flex-direction: column; align-items: flex-start; gap: 14px; }
   }
 </style>
 </head>
@@ -445,47 +271,52 @@
     Smart Notes
   </div>
   <div class="header-right">
-    <div class="tag tag-green">● Pipeline Live</div>
+    <div class="tag tag-green"><span class="dot"></span> Pipeline Live</div>
     <div class="tag tag-purple">CI/CD</div>
+    <button class="theme-toggle" id="themeToggle" title="Toggle light / dark">
+      <span class="icon-sun">☀️</span>
+      <span class="icon-moon">🌙</span>
+    </button>
   </div>
 </header>
 
 <main>
   <div class="hero">
     <div>
-      <h1>Your <span>notes,</span><br>all in one place.</h1>
+      <h1>Your <span>notes,</span><br>always here.</h1>
       <div class="hero-sub">git → github → jenkins → docker → live</div>
     </div>
-    <div class="note-count">
+    <div class="hero-count">
       <div class="num">{{ notes|length }}</div>
       <div class="lbl">notes saved</div>
     </div>
   </div>
 
+  <div class="eyebrow">Capture a thought</div>
   <div class="form-card">
     <form action="/add" method="POST">
       <div class="form-row">
-        <div class="input-group">
+        <div class="field">
           <label for="noteTitle">Title</label>
           <input type="text" id="noteTitle" name="title" placeholder="Note title..." required maxlength="80">
         </div>
-        <div class="input-group">
+        <div class="field">
           <label for="noteTag">Tag</label>
           <input type="text" id="noteTag" name="tag" placeholder="Optional tag..." maxlength="20">
         </div>
       </div>
-      <div class="input-group">
+      <div class="field">
         <label for="noteContent">Content</label>
         <textarea id="noteContent" name="content" placeholder="What's on your mind..." required maxlength="500"></textarea>
       </div>
       <div class="form-footer">
         <span class="char-count" id="charCount">0 / 500</span>
-        <button type="submit" class="btn-primary">+ Add Note</button>
+        <button type="submit" class="btn-add">+ Add Note</button>
       </div>
     </form>
   </div>
 
-  <div class="section-label">{{ notes|length }} note{% if notes|length != 1 %}s{% endif %}</div>
+  <div class="eyebrow">{{ notes|length }} note{% if notes|length != 1 %}s{% endif %}</div>
 
   <div class="grid">
     {% if notes %}
@@ -525,132 +356,78 @@
 </footer>
 
 <script>
-// ── Cursor glow follows mouse ──
+// ── Theme toggle — remembers your choice ──
+const html   = document.documentElement;
+const toggle = document.getElementById('themeToggle');
+html.setAttribute('data-theme', localStorage.getItem('sn-theme') || 'dark');
+
+toggle.addEventListener('click', () => {
+  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('sn-theme', next);
+});
+
+// ── Cursor glow ──
 const glow = document.getElementById('cursor-glow');
-let mx = window.innerWidth/2, my = window.innerHeight/2;
-let gx = mx, gy = my;
+let mx=innerWidth/2, my=innerHeight/2, gx=mx, gy=my;
+document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
+(function ag(){ gx+=(mx-gx)*0.07; gy+=(my-gy)*0.07; glow.style.left=gx+'px'; glow.style.top=gy+'px'; requestAnimationFrame(ag); })();
 
-document.addEventListener('mousemove', e => {
-  mx = e.clientX;
-  my = e.clientY;
-});
+// ── Particles ──
+const canvas=document.getElementById('particle-canvas'), ctx=canvas.getContext('2d');
+let W,H;
+function resize(){ W=canvas.width=innerWidth; H=canvas.height=innerHeight; }
+resize(); window.addEventListener('resize',resize);
 
-function animateGlow() {
-  gx += (mx - gx) * 0.08;
-  gy += (my - gy) * 0.08;
-  glow.style.left = gx + 'px';
-  glow.style.top  = gy + 'px';
-  requestAnimationFrame(animateGlow);
-}
-animateGlow();
-
-// ── 3D card tilt on mouse ──
-document.querySelectorAll('.note-card').forEach(card => {
-  card.addEventListener('mousemove', e => {
-    const r = card.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width  - 0.5;
-    const y = (e.clientY - r.top)  / r.height - 0.5;
-    card.style.transform = `perspective(600px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg) translateZ(4px)`;
-  });
-  card.addEventListener('mouseleave', () => {
-    card.style.transition = 'transform 0.4s ease, border-color 0.2s, box-shadow 0.2s';
-    card.style.transform = 'perspective(600px) rotateY(0) rotateX(0) translateZ(0)';
-    setTimeout(() => card.style.transition = '', 400);
-  });
-  card.addEventListener('mouseenter', () => {
-    card.style.transition = 'border-color 0.2s, box-shadow 0.2s';
-  });
-});
-
-// ── Particle canvas ──
-const canvas = document.getElementById('particle-canvas');
-const ctx = canvas.getContext('2d');
-let W, H;
-
-function resize() {
-  W = canvas.width  = window.innerWidth;
-  H = canvas.height = window.innerHeight;
-}
-resize();
-window.addEventListener('resize', resize);
-
-const PARTICLE_COUNT = 40;
-const particles = Array.from({length: PARTICLE_COUNT}, () => ({
-  x: Math.random() * window.innerWidth,
-  y: Math.random() * window.innerHeight,
-  r: Math.random() * 1.5 + 0.3,
-  vx: (Math.random() - 0.5) * 0.3,
-  vy: (Math.random() - 0.5) * 0.3,
-  alpha: Math.random() * 0.4 + 0.1,
-  // attraction to mouse
-  ax: 0, ay: 0,
+const PTS=Array.from({length:45},()=>({
+  x:Math.random()*innerWidth, y:Math.random()*innerHeight,
+  r:Math.random()*1.6+0.3, vx:(Math.random()-.5)*.28, vy:(Math.random()-.5)*.28,
+  alpha:Math.random()*.4+.1, ax:0, ay:0
 }));
 
-function drawParticles() {
-  ctx.clearRect(0, 0, W, H);
-  particles.forEach(p => {
-    // gentle attraction toward cursor
-    const dx = mx - p.x;
-    const dy = my - p.y;
-    const dist = Math.sqrt(dx*dx + dy*dy);
-    if (dist < 200) {
-      p.ax = (dx / dist) * 0.015;
-      p.ay = (dy / dist) * 0.015;
-    } else {
-      p.ax *= 0.95;
-      p.ay *= 0.95;
-    }
-
-    p.vx += p.ax;
-    p.vy += p.ay;
-    p.vx *= 0.98;
-    p.vy *= 0.98;
-
-    p.x += p.vx;
-    p.y += p.vy;
-
-    // wrap
-    if (p.x < 0) p.x = W;
-    if (p.x > W) p.x = 0;
-    if (p.y < 0) p.y = H;
-    if (p.y > H) p.y = 0;
-
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-    ctx.fillStyle = `rgba(123,110,246,${p.alpha})`;
-    ctx.fill();
+(function draw(){
+  ctx.clearRect(0,0,W,H);
+  const light = html.getAttribute('data-theme')==='light';
+  const c = light ? '91,79,224' : '123,110,246';
+  const lineAlpha = light ? 0.08 : 0.06;
+  PTS.forEach(p=>{
+    const dx=mx-p.x,dy=my-p.y,d=Math.hypot(dx,dy);
+    if(d<200){p.ax=(dx/d)*.014;p.ay=(dy/d)*.014;}else{p.ax*=.9;p.ay*=.9;}
+    p.vx=(p.vx+p.ax)*.98; p.vy=(p.vy+p.ay)*.98;
+    p.x+=p.vx; p.y+=p.vy;
+    if(p.x<0)p.x=W; if(p.x>W)p.x=0; if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${c},${p.alpha})`; ctx.fill();
   });
-
-  // draw faint lines between nearby particles
-  for (let i = 0; i < particles.length; i++) {
-    for (let j = i+1; j < particles.length; j++) {
-      const dx = particles[i].x - particles[j].x;
-      const dy = particles[i].y - particles[j].y;
-      const d = Math.sqrt(dx*dx + dy*dy);
-      if (d < 100) {
-        ctx.beginPath();
-        ctx.moveTo(particles[i].x, particles[i].y);
-        ctx.lineTo(particles[j].x, particles[j].y);
-        ctx.strokeStyle = `rgba(123,110,246,${0.06 * (1 - d/100)})`;
-        ctx.lineWidth = 0.5;
-        ctx.stroke();
-      }
-    }
+  for(let i=0;i<PTS.length;i++) for(let j=i+1;j<PTS.length;j++){
+    const dx=PTS[i].x-PTS[j].x,dy=PTS[i].y-PTS[j].y,d=Math.hypot(dx,dy);
+    if(d<100){ ctx.beginPath(); ctx.moveTo(PTS[i].x,PTS[i].y); ctx.lineTo(PTS[j].x,PTS[j].y);
+      ctx.strokeStyle=`rgba(${c},${lineAlpha*(1-d/100)})`; ctx.lineWidth=.5; ctx.stroke(); }
   }
-  requestAnimationFrame(drawParticles);
-}
-drawParticles();
+  requestAnimationFrame(draw);
+})();
 
-// ── Character counter ──
-const textarea = document.getElementById('noteContent');
-const counter  = document.getElementById('charCount');
-if (textarea) {
-  textarea.addEventListener('input', () => {
-    const n = textarea.value.length;
-    counter.textContent = n + ' / 500';
-    counter.style.color = n > 450 ? '#e05c5c' : n > 350 ? '#f0a050' : '';
+// ── 3D card tilt ──
+document.querySelectorAll('.note-card').forEach(card=>{
+  card.addEventListener('mousemove',e=>{
+    const r=card.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5;
+    card.style.transition='border-color 0.2s,box-shadow 0.2s';
+    card.style.transform=`perspective(600px) rotateY(${x*9}deg) rotateX(${-y*9}deg) translateZ(5px)`;
   });
-}
+  card.addEventListener('mouseleave',()=>{
+    card.style.transition='transform 0.45s ease,border-color 0.2s,box-shadow 0.2s';
+    card.style.transform='';
+    setTimeout(()=>{card.style.transition='';},450);
+  });
+});
+
+// ── Char counter ──
+const ta=document.getElementById('noteContent'),ct=document.getElementById('charCount');
+if(ta) ta.addEventListener('input',()=>{
+  const n=ta.value.length; ct.textContent=n+' / 500';
+  ct.style.color=n>450?'#e05c5c':n>350?'#e8a030':'';
+});
 </script>
 </body>
 </html>
